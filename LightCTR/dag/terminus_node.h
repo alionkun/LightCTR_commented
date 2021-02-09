@@ -13,6 +13,7 @@
 #include "node_abst.h"
 #include "../common/avx.h"
 
+//终点节点，没有输出
 class TerminusNode : public Autograd_Node_Abst {
 public:
     TerminusNode() = delete;
@@ -20,6 +21,7 @@ public:
         assert(_in_cnt > 0);
     }
     
+    //调用终点节点，运行DAG的向前模式
     DAG_Output runFlow(bool keep_intermediate = false) {
         init_forward_Flow(keep_intermediate);
         return forward_run().get();

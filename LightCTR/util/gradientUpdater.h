@@ -35,7 +35,7 @@ public:
     }
     static size_t __global_minibatch_size;
     static float __global_learning_rate;
-    static float __global_ema_rate;
+    static float __global_ema_rate; //Exponential Moving Average
     static float __global_sparse_rate;
     static float __global_lambdaL2, __global_lambdaL1;
     
@@ -71,8 +71,10 @@ public:
         __adagrad_params_cnt = cnt;
     }
     void update(size_t offset, size_t len, float* weight, float* grad) {
+        //w += grad * rate
         avx_vecScalerAdd(weight, grad, weight,
                          -__global_learning_rate / __global_minibatch_size, len);
+        //清空梯度
         memset(grad, 0, len * sizeof(float));
     }
     void update(size_t offset, vector<Matrix*>& weight, vector<Matrix*>& grad) {

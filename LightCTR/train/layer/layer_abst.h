@@ -77,6 +77,7 @@ public:
     
     size_t input_dimension, output_dimension;
     
+    //是否为输入层
     bool bInputLayer;
     
     SpinLock lock;

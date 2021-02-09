@@ -25,14 +25,21 @@
 class DAG_Pipeline {
 public:
     
+    //构造DAG图
+    //用于eval或者predict
     static void addDirectedFlow(std::shared_ptr<Autograd_Node_Abst> source_ptr,
                          std::shared_ptr<Autograd_Node_Abst> terminus_ptr) {
+        //链接source_ptr节点到terminus_ptr节点
         terminus_ptr->regist_in_node(source_ptr);
     }
     
+    //构造包含梯度子图的DAG
+    //用于train
     static void addAutogradFlow(std::shared_ptr<Autograd_Node_Abst> source_ptr,
                                 std::shared_ptr<Autograd_Node_Abst> terminus_ptr) {
+        //链接source_ptr节点到terminus_ptr节点
         terminus_ptr->regist_in_node(source_ptr);
+        //梯度子图的话，反过来
         source_ptr->regist_out_node(terminus_ptr);
     }
     

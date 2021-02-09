@@ -14,6 +14,8 @@
 #include "assert.h"
 using namespace std;
 
+// T => True
+// L => Label
 template <typename T, typename L>
 class Loss {
 public:
@@ -27,7 +29,7 @@ public:
     T loss(const T* pred, const L* label, size_t len) const {
         T sum = 0.0f, tmp;
         for (size_t i = 0; i < len; i++) {
-            tmp = pred[i] - label[i];
+            tmp = pred[i] - label[i]; //TODO t和l反过来，最终结果也是一样的吗
             sum += tmp / 2 * tmp;
         }
         return sum;

@@ -12,6 +12,7 @@
 #include "string.h"
 #include "../../common/avx.h"
 
+// V*a*b*...
 class MultiplyOp : public AggregateNode {
 public:
     MultiplyOp() = delete;

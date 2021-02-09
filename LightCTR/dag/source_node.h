@@ -14,6 +14,7 @@
 #include "node_abst.h"
 #include "../common/avx.h"
 
+//源节点，可以直接设置计算结果的节点
 class SourceNode : public Autograd_Node_Abst {
 public:
     SourceNode() = delete;
@@ -41,6 +42,8 @@ protected:
 };
 
 
+//可训练的节点，即变量节点，变量节点也是源节点，没有DAG依赖
+//UpdaterFunc是更新变量的接口
 template <typename UpdaterFunc>
 class TrainableNode : public SourceNode {
 public:

@@ -32,6 +32,7 @@ protected:
     }
     
     void backward_compute(const std::vector<DAG_Output>& out_deltas) {
+        //累加本节点的所有输出节点的梯度
         float cur_delta = 0;
         for(auto& out_delta : out_deltas) {
             cur_delta += out_delta.data->at(0);
@@ -51,6 +52,9 @@ protected:
             index = 1;
         }
         
+        // y = wx
+        // Dy/Dx = w
+        // 所以梯度实际上就是一个乘法
         avx_vecScale(compute_records[index].data->data(),
                      node_delta.data->data(),
                      len, cur_delta);

@@ -33,6 +33,7 @@ protected:
         if (node_output.data == nullptr) {
             node_output.data = std::make_shared<std::vector<float> >(len);
         }
+        //TODO 把y_pred存储在node_output.data中，只是为了后边计算梯度吗？node_output的作用是什么
         std::memcpy(node_output.data->data(), in_outputs[0].data->data(), len * sizeof(float));
         _loss = lossFun.loss(in_outputs[0].data->data(), _label->data(), len);
     }
