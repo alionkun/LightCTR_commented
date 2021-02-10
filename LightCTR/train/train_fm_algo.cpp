@@ -25,6 +25,7 @@ void Train_FM_Algo::init() {
     updater.learnable_params_cnt(learnable_params_cnt);
 }
 
+//清理各个缓冲区
 void Train_FM_Algo::flash() {
     memset(update_g, 0, sizeof(float) * learnable_params_cnt);
 #ifdef FM
@@ -46,6 +47,7 @@ void Train_FM_Algo::Train() {
         
         size_t thread_hold_dataRow_cnt = (this->dataRow_cnt + this->proc_cnt - 1) / this->proc_cnt;
         
+        //多线程计算梯度
         for (size_t pid = 0; pid < this->proc_cnt; pid++) {
             size_t start_pos = pid * thread_hold_dataRow_cnt;
             threadpool->addTask(bind(&Train_FM_Algo::batchGradCompute, this, start_pos,
@@ -87,9 +89,11 @@ void Train_FM_Algo::batchGradCompute(size_t rbegin, size_t rend) {
     this->proc_data_left -= rend - rbegin;
 }
 
+//更新W和V的梯度
 void Train_FM_Algo::accumWVGrad(size_t rid, float pred) {
     const float target = label[rid];
     
+    //更新loss和acc
     __loss += target == 1 ? -log(pred) : -log(1.0 - pred);
     if (pred > 0.5 && target == 1) {
         __accuracy++;

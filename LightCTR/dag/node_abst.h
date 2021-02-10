@@ -87,7 +87,7 @@ protected:
                 std::vector<DAG_Output> in_outputs(in_cnt);
                 if (in_cnt > 0) {
                     for(size_t i = 0; i < in_cnt; i++) {
-                        //然后读取所有输入，这里等待上游所有节点完成计算
+                        //然后读取所有上游节点的输出
                         in_outputs[i] = in_futures->at(i).get();
                         assert(in_outputs[i].node_id > 0);
                     }

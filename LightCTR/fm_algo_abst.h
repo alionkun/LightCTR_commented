@@ -27,8 +27,11 @@
 using namespace std;
 
 struct FMFeature {
+    //特征ID
     size_t first; // feature id
+    //特征值
     float second; // value
+    //特征域
     size_t field;
     FMFeature(size_t _first, float _second, size_t _field):
     first(_first), second(_second), field(_field) {}
@@ -39,7 +42,9 @@ public:
     FM_Algo_Abst(string _dataPath, size_t _factor_cnt,
                  size_t _field_cnt = 0, size_t _feature_cnt = 0):
     feature_cnt(_feature_cnt), field_cnt(_field_cnt), factor_cnt(_factor_cnt) {
+        //多线程，火力全开
         proc_cnt = thread::hardware_concurrency();
+        printf("proc_cnt=%ld", proc_cnt);
         loadDataRow(_dataPath);
         init();
     }
@@ -50,12 +55,17 @@ public:
         delete [] sumVX;
 #endif
     }
+
+    //初始化模型参数
     void init() {
+        //一次项参数
         W = new float[this->feature_cnt];
         memset(W, 0, sizeof(float) * this->feature_cnt);
 #ifdef FM
+        //for FM
         size_t memsize = this->feature_cnt * this->factor_cnt;
         if (this->field_cnt > 0) {
+            //for FFM
             memsize = this->feature_cnt * this->field_cnt * this->factor_cnt;
         }
         V = new float[memsize];
@@ -67,6 +77,8 @@ public:
 #endif
     }
     
+    //加载训练数据
+    //同时统计特征ID的维度、特征域的数量等信息
     void loadDataRow(string dataPath) {
         dataSet.clear();
         
@@ -85,6 +97,7 @@ public:
             getline(fin_, line);
             tmp.clear();
             const char *pline = line.c_str();
+            // label field_id:feature_id:feature_value ...
             if(sscanf(pline, "%d%n", &y, &nchar) >= 1){
                 pline += nchar + 1;
                 label.emplace_back(y);
@@ -92,6 +105,7 @@ public:
                       sscanf(pline, "%zu:%zu:%f%n", &fieldid, &fid, &val, &nchar) >= 2){
                     pline += nchar + 1;
                     tmp.emplace_back(*new FMFeature(fid, val, fieldid));
+                    //找到特征ID的最大值，作为特征的维度
                     this->feature_cnt = max(this->feature_cnt, fid + 1);
                     if (this->field_cnt > 0) {
                         this->field_cnt = max(this->field_cnt, fieldid + 1);
@@ -106,6 +120,7 @@ public:
         this->dataRow_cnt = this->dataSet.size();
     }
     
+    //保存模型参数
     void saveModel(size_t epoch) {
         char buffer[1024];
         snprintf(buffer, 1024, "%d", (int)epoch);
@@ -115,6 +130,7 @@ public:
             cout<<"save model open file error" << endl;
             exit(1);
         }
+        //保存非0参数
         for (size_t fid = 0; fid < this->feature_cnt; fid++) {
             if (W[fid] != 0) {
                 md << fid << ":" << W[fid] << " ";
@@ -153,10 +169,12 @@ public:
         return &sumVX[rid * this->factor_cnt + facid];
     }
     
+    //数据集
     vector<vector<FMFeature> > dataSet;
     
 protected:
     inline float LogisticGradW(float pred, float label, float x) {
+        //TODO 这里loss用的是MSE？为啥loss用的是cross-entropy
         return (pred - label) * x;
     }
     inline float LogisticGradV(float gradW, float sum, float v, float x) {

@@ -17,6 +17,7 @@ class GradientUpdater {
 public:
     // update weight with L2 Regularization
     inline static void update(float* weight, float grad) {
+        //基础Loss加上L2，表现在梯度上就是Weight-Decay
         *weight += grad + __global_lambdaL2 * *weight;
     }
     inline static void updateL1(float* weight, float grad) {
@@ -29,6 +30,7 @@ public:
         __global_learning_rate *= ratio;
     }
     inline static float ThresholdL1(float w) {
+        //TODO 对比其他L1的实现
         if (w > +__global_lambdaL1) return - __global_lambdaL1;
         if (w < -__global_lambdaL1) return + __global_lambdaL1;
         return 0.0;
@@ -144,7 +146,11 @@ public:
         for (size_t i = 0; i < len; i++) {
             const float g = grad[i];
             if (g != 0) {
+                //累计每个参数的梯度的平方
                 __adagrad_accum[offset + i] += g * g;
+                //自适应学习率，
+                //对经常出现的特征，降低学习率，
+                //对不经常出现的特征，增加学习率
                 weight[i] -= __global_learning_rate * g / sqrt(__adagrad_accum[offset + i] + 1e-7);
             }
         }

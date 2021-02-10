@@ -21,7 +21,7 @@ public:
         assert(_in_cnt > 0);
     }
     
-    //调用终点节点，运行DAG的向前模式
+    //调用结束节点，运行DAG的向前模式
     DAG_Output runFlow(bool keep_intermediate = false) {
         init_forward_Flow(keep_intermediate);
         return forward_run().get();

@@ -207,6 +207,7 @@ inline void avx_vecRcp(const float* x, float *res, size_t len) {
     }
 }
 
+//x放大scalar倍，从res返回
 inline void avx_vecScale(const float* x, float *res, size_t len, const float scalar) {
     const __m256 _scalar = _mm256_broadcast_ss(&scalar);
     if (len > 7) {

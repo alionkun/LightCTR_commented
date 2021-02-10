@@ -91,22 +91,29 @@ int main(int argc, const char * argv[]) {
         float b_f[] = {0.3};
         b->setValue(std::make_shared<std::vector<float> >(b_f, b_f + 1));
         
+        // wx = w*x
         auto wx = make_shared<MatmulOp>(1);
         DAG_Pipeline::addAutogradFlow(w, wx);
         DAG_Pipeline::addAutogradFlow(x, wx);
+        // wxb = w*x+b
         auto wxb = make_shared<AddOp>(2, 1);
         DAG_Pipeline::addAutogradFlow(wx, wxb);
         DAG_Pipeline::addAutogradFlow(b, wxb);
+        // sig = sigmoid(w*x+b)
         auto sig = make_shared<ActivationsOp<Sigmoid> >(1);
         DAG_Pipeline::addAutogradFlow(wxb, sig);
         auto loss = make_shared<LossOp<Logistic<float, int> > >();
+        // !!!sig是个标量
         int label[] = {0};
         loss->setLable(std::make_shared<std::vector<int> >(label, label + 1));
         
         DAG_Pipeline::addAutogradFlow(sig, loss);
-        for (int i = 0; i < 20; i++) {
+        //for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 1; i++) {
+            //向前
             loss->runFlow();
-            printf("%d: %f\n", i, loss->getLoss());
+            //printf("%d: %f\n", i, loss->getLoss());
+            //反向
             w->runFlow();
             b->runFlow(true);
         }
@@ -142,10 +149,10 @@ int main(int argc, const char * argv[]) {
     
 #ifdef TEST_FM
     FM_Algo_Abst *train = new Train_FM_Algo(
-                        "./data/ad_data.csv",
+                        "./data/train_sparse.csv",
                         /*epoch*/5,
                         /*factor_cnt*/16);
-    FM_Predict pred(train, "./data/ad_test.csv", true);
+    FM_Predict pred(train, "./data/test_sparse.csv", true);
 #elif defined TEST_FFM
     FM_Algo_Abst *train = new Train_FFM_Algo(
                                             "./data/ad_data.csv",
